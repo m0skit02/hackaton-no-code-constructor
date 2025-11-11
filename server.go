@@ -1,4 +1,4 @@
-package hackaton_aeza_checker
+package hackaton_no_code_constructor
 
 import (
 	"context"

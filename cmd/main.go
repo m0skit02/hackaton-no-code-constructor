@@ -2,13 +2,17 @@ package main
 
 import (
 	"context"
-	"github.com/zhashkevych/todo-app"
+	"fmt"
+	"gorm.io/gorm"
+	hackaton_no_code_constructor "hackaton-no-code-constructor"
 	"hackaton-no-code-constructor/pkg/handler"
 	"hackaton-no-code-constructor/pkg/repository"
 	"hackaton-no-code-constructor/pkg/service"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -16,70 +20,133 @@ import (
 	"github.com/spf13/viper"
 )
 
-// @title Todo App API
-// @version 1.0
-// @description API Server for TodoList Application
-
-// @host localhost:8000
-// @BasePath /
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 
-	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializing configs: %s", err.Error())
+	// Попробуем загрузить .env из текущей или родительской папки
+	if err := loadEnv(); err != nil {
+		logrus.Warn("⚠️  .env file not found, using Docker environment variables")
+	} else {
+		logrus.Info("✅ .env file loaded successfully")
 	}
 
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variables: %s", err.Error())
-	}
-
-	db, err := repository.NewPostgresDB(repository.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-		Password: os.Getenv("DB_PASSWORD"),
-	})
-	if err != nil {
-		logrus.Fatalf("failed to initialize db: %s", err.Error())
-	}
+	db := connectToPostgres()
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 
-	srv := new(todo.Server)
+	// Контекст для graceful shutdown
+	ctx, shutdown := waitForShutdown()
+	defer shutdown()
+
+	srv := new(hackaton_no_code_constructor.Server)
 	go func() {
-		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-			logrus.Fatalf("error occured while running http server: %s", err.Error())
+		address := buildAppAddress()
+		logrus.Infof("🚀 Starting server on %s", address)
+
+		if err := srv.Run(address, handlers.InitRoutes()); err != nil && err != http.ErrServerClosed {
+			logrus.Fatalf("❌ Error running HTTP server: %s", err)
 		}
 	}()
 
-	logrus.Print("TodoApp Started")
+	logrus.Info("✅ Server started successfully")
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
-	<-quit
+	// Ждём сигнала через контекст
+	<-ctx.Done()
 
-	logrus.Print("TodoApp Shutting Down")
-
-	if err := srv.Shutdown(context.Background()); err != nil {
-		logrus.Errorf("error occured on server shutting down: %s", err.Error())
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		logrus.Errorf("error during server shutdown: %s", err)
 	}
 
-	if err := db.Close(); err != nil {
-		logrus.Errorf("error occured on db connection close: %s", err.Error())
-	}
+	closeDB(db)
+
+	logrus.Info("🟢 Application shutdown complete")
 }
 
 func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
+}
+
+func loadEnv() error {
+	if err := godotenv.Load("./.env"); err == nil {
+		return nil
+	}
+	if err := godotenv.Load("../.env"); err == nil {
+		return nil
+	}
+	return fmt.Errorf(".env not found")
+}
+
+func connectToPostgres() *gorm.DB {
+	requiredEnv := []string{
+		"POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER",
+		"POSTGRES_DATABASE", "POSTGRES_PASSWORD", "POSTGRES_SSL_MODE",
+	}
+
+	for _, key := range requiredEnv {
+		if os.Getenv(key) == "" {
+			logrus.Fatalf("environment variable %s is required but not set", key)
+		}
+	}
+
+	cfg := repository.Config{
+		Host:     os.Getenv("POSTGRES_HOST"),
+		Port:     os.Getenv("POSTGRES_PORT"),
+		Username: os.Getenv("POSTGRES_USER"),
+		DBName:   os.Getenv("POSTGRES_DATABASE"),
+		SSLMode:  os.Getenv("POSTGRES_SSL_MODE"),
+		Password: os.Getenv("POSTGRES_PASSWORD"),
+	}
+
+	db, err := repository.NewPostgresDB(cfg)
+	if err != nil {
+		logrus.Fatalf("failed to initialize Postgres: %v", err)
+	}
+
+	logrus.Info("✅ Connected to Postgres")
+	return db
+}
+
+func waitForShutdown() (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithCancel(context.Background())
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		sig := <-quit
+		logrus.Infof("🛑 Received signal %s, shutting down...", sig)
+		cancel()
+	}()
+
+	return ctx, cancel
+}
+
+func closeDB(db *gorm.DB) {
+	if db == nil {
+		return
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		logrus.Errorf("failed to get sql.DB from gorm: %s", err)
+		return
+	}
+	if err := sqlDB.Close(); err != nil {
+		logrus.Errorf("error closing DB connection: %s", err)
+	} else {
+		logrus.Info("🔒 PostgreSQL connection closed")
+	}
+}
+
+func buildAppAddress() string {
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	// Всегда слушаем на всех интерфейсах
+	return "0.0.0.0:" + port
 }
