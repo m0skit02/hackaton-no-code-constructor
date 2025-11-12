@@ -152,6 +152,7 @@ func runMigrations(db *gorm.DB) {
 
 	if err := db.AutoMigrate(
 		&models.BlockType{},
+		&models.Tag{},
 	); err != nil {
 		logrus.Fatalf("migration failed: %v", err)
 	}

@@ -32,6 +32,7 @@ func (r *BlockTypePostgres) GetByID(id string) (*models.BlockType, error) {
 	if err := r.db.First(&blockType, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
+
 	return &blockType, nil
 }
 

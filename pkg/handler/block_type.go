@@ -25,7 +25,7 @@ func (h *Handler) createBlockType(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdBlockType)
 }
 
-func (h *Handler) getListBlockTypes(c *gin.Context) {
+func (h *Handler) getAllBlockTypes(c *gin.Context) {
 	blockTypes, err := h.services.BlockType.GetAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -35,7 +35,7 @@ func (h *Handler) getListBlockTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, blockTypes)
 }
 
-func (h *Handler) getByIDBlockType(c *gin.Context) {
+func (h *Handler) getBlockTypeById(c *gin.Context) {
 	id := c.Param("id")
 
 	blockType, err := h.services.BlockType.GetByID(id)

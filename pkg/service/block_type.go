@@ -1,9 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"hackaton-no-code-constructor/pkg/dto/block_type_context"
 	models "hackaton-no-code-constructor/pkg/model"
 	"hackaton-no-code-constructor/pkg/repository"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type BlockTypeService struct {
@@ -15,6 +19,10 @@ func NewBlockTypeService(repo repository.BlockType) *BlockTypeService {
 }
 
 func (s *BlockTypeService) Create(input block_type_context.CreateBlockTypeInput) (*models.BlockType, error) {
+	if !s.checkTag(input.TagID) {
+		return nil, fmt.Errorf("tag %w", gorm.ErrRecordNotFound)
+	}
+
 	blockType := models.BlockType{
 		TagID:       input.TagID,
 		Name:        input.Name,
@@ -51,6 +59,10 @@ func (s *BlockTypeService) GetByID(id string) (*models.BlockType, error) {
 }
 
 func (s *BlockTypeService) Update(id string, input block_type_context.UpdateBlockTypeInput) (*models.BlockType, error) {
+	if !s.checkTag(input.TagID) {
+		return nil, fmt.Errorf("tag %w", gorm.ErrRecordNotFound)
+	}
+
 	blockType, err := s.repo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -77,4 +89,9 @@ func (s *BlockTypeService) Delete(id string) error {
 	}
 
 	return nil
+}
+
+func (s *BlockTypeService) checkTag(id uuid.UUID) bool {
+	_, err := s.GetByID(id.String())
+	return err == nil
 }

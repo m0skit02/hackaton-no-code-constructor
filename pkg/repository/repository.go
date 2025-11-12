@@ -15,11 +15,11 @@ type User interface {
 }
 
 type Tag interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	Create(models.Tag) (*models.Tag, error)
+	GetAll() ([]models.Tag, error)
+	GetByID(id string) (*models.Tag, error)
+	Update(tag *models.Tag) (*models.Tag, error)
+	Delete(id string) error
 }
 
 type BlockType interface {
