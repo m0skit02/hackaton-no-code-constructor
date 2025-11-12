@@ -1,6 +1,8 @@
 package service
 
 import (
+	"hackaton-no-code-constructor/pkg/dto/block_type_context"
+	models "hackaton-no-code-constructor/pkg/model"
 	"hackaton-no-code-constructor/pkg/repository"
 )
 
@@ -12,12 +14,67 @@ func NewBlockTypeService(repo repository.BlockType) *BlockTypeService {
 	return &BlockTypeService{repo: repo}
 }
 
-func (s *BlockTypeService) Create() {}
+func (s *BlockTypeService) Create(input block_type_context.CreateBlockTypeInput) (*models.BlockType, error) {
+	blockType := models.BlockType{
+		TagID:       input.TagID,
+		Name:        input.Name,
+		Description: input.Description,
+		Template:    input.Template,
+		Schema:      input.Schema,
+		Preview:     input.Preview,
+	}
 
-func (s *BlockTypeService) GetAll() {}
+	createdBlockType, err := s.repo.Create(blockType)
+	if err != nil {
+		return nil, err
+	}
 
-func (s *BlockTypeService) GetByID() {}
+	return createdBlockType, nil
+}
 
-func (s *BlockTypeService) Update() {}
+func (s *BlockTypeService) GetAll() ([]models.BlockType, error) {
+	blockTypes, err := s.repo.GetAll()
+	if err != nil {
+		return nil, err
+	}
 
-func (s *BlockTypeService) Delete() {}
+	return blockTypes, nil
+}
+
+func (s *BlockTypeService) GetByID(id string) (*models.BlockType, error) {
+	blockType, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return blockType, nil
+}
+
+func (s *BlockTypeService) Update(id string, input block_type_context.UpdateBlockTypeInput) (*models.BlockType, error) {
+	blockType, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	blockType.TagID = input.TagID
+	blockType.Name = input.Name
+	blockType.Description = input.Description
+	blockType.Template = input.Template
+	blockType.Schema = input.Schema
+	blockType.Preview = input.Preview
+
+	updatedBlockType, err := s.repo.Update(blockType)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedBlockType, nil
+}
+
+func (s *BlockTypeService) Delete(id string) error {
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	return nil
+}

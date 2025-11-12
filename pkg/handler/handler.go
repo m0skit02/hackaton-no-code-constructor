@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"hackaton-no-code-constructor/pkg/service"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"hackaton-no-code-constructor/pkg/service"
 )
 
 type Handler struct {
@@ -23,9 +24,16 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		AllowCredentials: true,
 	}))
 
-	//	api := router.Group("/api")
-	//	{
-	//
-	//	}
+	api := router.Group("/api")
+	{
+		blockTypes := api.Group("/blockTypes")
+		{
+			blockTypes.POST("/", h.createBlockType)      // Создать блок
+			blockTypes.GET("/", h.getListBlockTypes)     //Получить список блоков
+			blockTypes.GET("/:id", h.getByIDBlockType)   //Получить блок по ID
+			blockTypes.PUT("/:id", h.updateBlockType)    //Обновить блок по ID
+			blockTypes.DELETE("/:id", h.deleteBlockType) //Удалить блок по ID
+		}
+	}
 	return router
 }

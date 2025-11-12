@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	hackaton_no_code_constructor "hackaton-no-code-constructor"
 	"hackaton-no-code-constructor/pkg/handler"
+	models "hackaton-no-code-constructor/pkg/model"
 	"hackaton-no-code-constructor/pkg/repository"
 	"hackaton-no-code-constructor/pkg/service"
 	"net/http"
@@ -14,10 +14,11 @@ import (
 	"syscall"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 	}
 
 	db := connectToPostgres()
+	runMigrations(db)
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
@@ -64,12 +66,6 @@ func main() {
 	closeDB(db)
 
 	logrus.Info("🟢 Application shutdown complete")
-}
-
-func initConfig() error {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
 }
 
 func loadEnv() error {
@@ -149,4 +145,16 @@ func buildAppAddress() string {
 	}
 	// Всегда слушаем на всех интерфейсах
 	return "0.0.0.0:" + port
+}
+
+func runMigrations(db *gorm.DB) {
+	logrus.Info("Running auto-migrations...")
+
+	if err := db.AutoMigrate(
+		&models.BlockType{},
+	); err != nil {
+		logrus.Fatalf("migration failed: %v", err)
+	}
+
+	logrus.Info("Auto-migrations completed successfully")
 }

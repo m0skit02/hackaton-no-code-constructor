@@ -1,6 +1,8 @@
 package service
 
 import (
+	"hackaton-no-code-constructor/pkg/dto/block_type_context"
+	models "hackaton-no-code-constructor/pkg/model"
 	"hackaton-no-code-constructor/pkg/repository"
 )
 
@@ -21,11 +23,11 @@ type Tag interface {
 }
 
 type BlockType interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	Create(input block_type_context.CreateBlockTypeInput) (*models.BlockType, error)
+	GetAll() ([]models.BlockType, error)
+	GetByID(id string) (*models.BlockType, error)
+	Update(id string, input block_type_context.UpdateBlockTypeInput) (*models.BlockType, error)
+	Delete(id string) error
 }
 
 type Project interface {

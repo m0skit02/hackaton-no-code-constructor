@@ -1,6 +1,8 @@
 package repository
 
 import (
+	models "hackaton-no-code-constructor/pkg/model"
+
 	"gorm.io/gorm"
 )
 
@@ -21,11 +23,11 @@ type Tag interface {
 }
 
 type BlockType interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	Create(blockType models.BlockType) (*models.BlockType, error)
+	GetAll() ([]models.BlockType, error)
+	GetByID(id string) (*models.BlockType, error)
+	Update(blockType *models.BlockType) (*models.BlockType, error)
+	Delete(id string) error
 }
 
 type Project interface {
