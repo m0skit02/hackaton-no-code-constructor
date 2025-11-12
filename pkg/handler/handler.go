@@ -47,6 +47,35 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			tags.DELETE("/:id", h.deleteTag) // Удалить тег по ID
 			tags.GET("/:id", h.getTagById)   // Получить тег по ID
 		}
+
+		users := api.Group("/users")
+		{
+			users.POST("/", h.createUser)                            // Создать пользователя
+			users.GET("/", h.getUsers)                               // Получить список пользователей
+			users.GET("/:id", h.getUserByID)                         // Получить пользователя по ID
+			users.PUT("/:id", h.updateUser)                          // Обновить пользователя по ID
+			users.DELETE("/:id", h.deleteUser)                       // Удалить пользователя по ID
+			users.POST("/login", h.loginUser)                        // Логин пользователя
+			users.GET("/by-username/:username", h.getUserByUsername) // Получить пользователя по username
+		}
+
+		projectBlocks := api.Group("/project-blocks")
+		{
+			projectBlocks.POST("/", h.createProjectBlock)      // Создать блок проекта
+			projectBlocks.GET("/", h.getAllProjectBlock)       // Получить все блоки проекта
+			projectBlocks.GET("/:id", h.getByIdProjectBlock)   // Получить блок проекта по ID
+			projectBlocks.PUT("/:id", h.updateProjectBlock)    // Обновить блок проекта по ID
+			projectBlocks.DELETE("/:id", h.deleteProjectBlock) // Удалить блок проекта по ID
+		}
+
+		projects := api.Group("/projects")
+		{
+			projects.POST("/", h.createProject)      // Создать проект
+			projects.GET("/", h.getAllProject)       // Получить все проекты
+			projects.GET("/:id", h.getByIdProject)   // Получить проект по ID
+			projects.PUT("/:id", h.updateProject)    // Обновить проект по ID
+			projects.DELETE("/:id", h.deleteProject) // Удалить проект по ID
+		}
 	}
 	return router
 }

@@ -1,18 +1,24 @@
 package service
 
 import (
+	"github.com/google/uuid"
 	"hackaton-no-code-constructor/pkg/dto/block_type_context"
+	"hackaton-no-code-constructor/pkg/dto/project_block_context"
+	"hackaton-no-code-constructor/pkg/dto/project_context"
 	"hackaton-no-code-constructor/pkg/dto/tag_context"
+	user_context "hackaton-no-code-constructor/pkg/dto/user_context"
 	models "hackaton-no-code-constructor/pkg/model"
 	"hackaton-no-code-constructor/pkg/repository"
 )
 
 type User interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	CreateUser(input user_context.CreateUserInput) (*models.User, error)
+	LoginUser(username, password string) (*models.User, error)
+	GetAllUsers() ([]models.User, error)
+	GetUserByID(id uuid.UUID) (*models.User, error)
+	GetUserByUsername(username string) (*models.User, error)
+	UpdateUser(id uuid.UUID, input user_context.UpdateUserInput) (*models.User, error)
+	DeleteUser(id uuid.UUID) error
 }
 
 type Tag interface {
@@ -32,19 +38,19 @@ type BlockType interface {
 }
 
 type Project interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	CreateProject(input project_context.CreateProjectInput) (*models.Project, error)
+	GetAllProjects() ([]models.Project, error)
+	GetByIDProject(id uuid.UUID) (*models.Project, error)
+	UpdateProject(id uuid.UUID, input project_context.UpdateProjectInput) (*models.Project, error)
+	DeleteProject(id uuid.UUID) error
 }
 
 type ProjectBlock interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	CreateProjectBlock(input project_block_context.CreateProjectBlockInput) (*models.ProjectBlock, error)
+	GetAllProjectBlock() ([]models.ProjectBlock, error)
+	GetByIDProjectBlock(id uuid.UUID) (*models.ProjectBlock, error)
+	UpdateProjectBlock(id uuid.UUID, input project_block_context.UpdateProjectBlockInput) (*models.ProjectBlock, error)
+	DeleteProjectBlock(id uuid.UUID) error
 }
 
 type Auth interface {
