@@ -25,6 +25,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		AllowCredentials: true,
 	}))
 
+	router.POST("/api/auth", h.Login) // Авторизация
+
 	api := router.Group("/api")
 	api.Use(middleware.JWTAuthMiddleware())
 	{
