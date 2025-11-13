@@ -45,12 +45,17 @@ type ProjectBlock interface {
 	Update()
 	Delete()
 }
+
+type Auth interface {
+	GetUserByUsernameAndPasswordHash(username string, passwordHash string) (*models.User, error)
+}
 type Repository struct {
 	User
 	Tag
 	BlockType
 	Project
 	ProjectBlock
+	Auth
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -60,5 +65,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		BlockType:    NewBlockTypeRepo(db),
 		Project:      NewProjectRepo(db),
 		ProjectBlock: NewProjectBlockRepo(db),
+		Auth:         NewAuthRepo(db),
 	}
 }

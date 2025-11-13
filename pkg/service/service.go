@@ -47,6 +47,10 @@ type ProjectBlock interface {
 	Delete()
 }
 
+type Auth interface {
+	GetUserByUsernameAndPasswordHash(username, passwordHash string) (*models.User, error)
+}
+
 // Главная структура сервисов
 type Service struct {
 	User
@@ -54,6 +58,7 @@ type Service struct {
 	BlockType
 	Project
 	ProjectBlock
+	Auth
 }
 
 // Конструктор
@@ -64,5 +69,6 @@ func NewService(repos *repository.Repository) *Service {
 		BlockType:    NewBlockTypeService(repos.BlockType),
 		Project:      NewProjectService(repos.Project),
 		ProjectBlock: NewProjectBlockService(repos.ProjectBlock),
+		Auth:         NewAuthService(repos.Auth),
 	}
 }

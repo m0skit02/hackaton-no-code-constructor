@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"hackaton-no-code-constructor/pkg/middleware"
 	"hackaton-no-code-constructor/pkg/service"
 
 	"github.com/gin-contrib/cors"
@@ -25,6 +26,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	}))
 
 	api := router.Group("/api")
+	api.Use(middleware.JWTAuthMiddleware())
 	{
 		blockTypes := api.Group("/blockTypes")
 		{
