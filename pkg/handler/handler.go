@@ -15,7 +15,9 @@ type Handler struct {
 func NewHandler(services *service.Service) *Handler { return &Handler{services: services} }
 
 func (h *Handler) InitRoutes() *gin.Engine {
-	router := gin.New()
+	router := gin.Default()
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
@@ -25,7 +27,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		AllowCredentials: true,
 	}))
 
-	router.POST("/api/auth", h.Login) // Авторизация
+	auth := router.Group("/api/auth")
+	{
+		auth.POST("/", h.Login)
+	}
 
 	api := router.Group("/api")
 	api.Use(middleware.JWTAuthMiddleware())
