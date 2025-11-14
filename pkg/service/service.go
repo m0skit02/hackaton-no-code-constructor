@@ -54,7 +54,7 @@ type ProjectBlock interface {
 }
 
 type Auth interface {
-	GetUserByUsernameAndPasswordHash(username, passwordHash string) (*models.User, error)
+	Login(username, password string) (*models.User, error)
 }
 
 // Главная структура сервисов

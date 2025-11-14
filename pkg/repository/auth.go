@@ -12,11 +12,10 @@ type AuthPostgres struct {
 
 func NewAuthRepo(db *gorm.DB) *AuthPostgres { return &AuthPostgres{db: db} }
 
-func (r *AuthPostgres) GetUserByUsernameAndPasswordHash(username string, passwordHash string) (*models.User, error) {
+func (r *AuthPostgres) GetByUsername(username string) (*models.User, error) {
 	var user models.User
-	if err := r.db.First(&user, "username = ? AND password_hash = ?", username, passwordHash).Error; err != nil {
+	if err := r.db.First(&user, "username = ?", username).Error; err != nil {
 		return nil, err
 	}
-
 	return &user, nil
 }

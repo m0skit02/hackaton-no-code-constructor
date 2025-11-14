@@ -18,13 +18,13 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.Auth.GetUserByUsernameAndPasswordHash(input.Username, input.PasswordHash)
+	user, err := h.services.Auth.Login(input.Username, input.Password)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 

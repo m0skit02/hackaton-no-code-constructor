@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"golang.org/x/crypto/bcrypt"
 	models "hackaton-no-code-constructor/pkg/model"
 	"hackaton-no-code-constructor/pkg/repository"
 )
@@ -13,10 +15,15 @@ func NewAuthService(repo repository.Auth) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (r *AuthService) GetUserByUsernameAndPasswordHash(username string, passwordHash string) (*models.User, error) {
-	user, err := r.repo.GetUserByUsernameAndPasswordHash(username, passwordHash)
+func (s *AuthService) Login(username, password string) (*models.User, error) {
+	user, err := s.repo.GetByUsername(username)
 	if err != nil {
 		return nil, err
+	}
+
+	// сравниваем пароль
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return nil, errors.New("invalid password")
 	}
 
 	return user, nil

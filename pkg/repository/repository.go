@@ -49,7 +49,7 @@ type ProjectBlock interface {
 }
 
 type Auth interface {
-	GetUserByUsernameAndPasswordHash(username string, passwordHash string) (*models.User, error)
+	GetByUsername(username string) (*models.User, error)
 }
 type Repository struct {
 	User
