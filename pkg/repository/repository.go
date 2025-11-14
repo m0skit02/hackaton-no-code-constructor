@@ -1,17 +1,19 @@
 package repository
 
 import (
+	"github.com/google/uuid"
 	models "hackaton-no-code-constructor/pkg/model"
 
 	"gorm.io/gorm"
 )
 
 type User interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	Create(user models.User) (*models.User, error)
+	GetByID(id uuid.UUID) (*models.User, error)
+	GetByUsername(username string) (*models.User, error)
+	Update(user *models.User) (*models.User, error)
+	Delete(id uuid.UUID) error
+	GetAll() ([]models.User, error)
 }
 
 type Tag interface {
@@ -31,19 +33,19 @@ type BlockType interface {
 }
 
 type Project interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	Create(project models.Project) (*models.Project, error)
+	GetAll() ([]models.Project, error)
+	GetByID(id uuid.UUID) (*models.Project, error)
+	Update(project models.Project) (*models.Project, error)
+	Delete(id uuid.UUID) error
 }
 
 type ProjectBlock interface {
-	Create()
-	GetAll()
-	GetByID()
-	Update()
-	Delete()
+	Create(projectBlock models.ProjectBlock) (*models.ProjectBlock, error)
+	GetAll() ([]models.ProjectBlock, error)
+	GetByID(id uuid.UUID) (*models.ProjectBlock, error)
+	Update(projectBlock models.ProjectBlock) (*models.ProjectBlock, error)
+	Delete(id uuid.UUID) error
 }
 
 type Auth interface {
