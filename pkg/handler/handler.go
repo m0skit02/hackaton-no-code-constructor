@@ -32,6 +32,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/", h.Login)
 	}
 
+	usersOpen := router.Group("/api/users")
+	{
+		usersOpen.POST("/", h.createUser)     // регистрация
+		usersOpen.POST("/login", h.loginUser) // Логин пользователя
+	}
+
 	api := router.Group("/api")
 	api.Use(middleware.JWTAuthMiddleware())
 	{
@@ -54,13 +60,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		}
 
 		users := api.Group("/users")
-		{
-			users.POST("/", h.createUser)                            // Создать пользователя
+		{ // Создать пользователя
 			users.GET("/", h.getUsers)                               // Получить список пользователей
 			users.GET("/:id", h.getUserByID)                         // Получить пользователя по ID
 			users.PUT("/:id", h.updateUser)                          // Обновить пользователя по ID
 			users.DELETE("/:id", h.deleteUser)                       // Удалить пользователя по ID
-			users.POST("/login", h.loginUser)                        // Логин пользователя
 			users.GET("/by-username/:username", h.getUserByUsername) // Получить пользователя по username
 		}
 

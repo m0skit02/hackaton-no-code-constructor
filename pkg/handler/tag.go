@@ -13,6 +13,7 @@ func (h *Handler) createTag(c *gin.Context) {
 	var input tag_context.CreateTagInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	createdTag, err := h.services.Tag.Create(input)
