@@ -11,11 +11,12 @@ import (
 )
 
 type BlockTypeService struct {
-	repo repository.BlockType
+	repo    repository.BlockType
+	tagRepo repository.Tag // <-- добавляем поле сюда
 }
 
-func NewBlockTypeService(repo repository.BlockType) *BlockTypeService {
-	return &BlockTypeService{repo: repo}
+func NewBlockTypeService(repo repository.BlockType, tagRepo repository.Tag) *BlockTypeService {
+	return &BlockTypeService{repo: repo, tagRepo: tagRepo}
 }
 
 func (s *BlockTypeService) Create(input block_type_context.CreateBlockTypeInput) (*models.BlockType, error) {
@@ -92,6 +93,6 @@ func (s *BlockTypeService) Delete(id string) error {
 }
 
 func (s *BlockTypeService) checkTag(id uuid.UUID) bool {
-	_, err := s.GetByID(id.String())
+	_, err := s.tagRepo.GetByID(id.String())
 	return err == nil
 }

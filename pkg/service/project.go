@@ -20,8 +20,9 @@ func (s *ProjectService) CreateProject(input project_context.CreateProjectInput)
 	logrus.Infof("[ProjectService] Create Project %+v", input)
 
 	project := models.Project{
-		Name: input.Name,
-		Data: input.Data,
+		Name:   input.Name,
+		UserID: input.UserID,
+		Data:   input.Data, // datatypes.JSON напрямую
 	}
 
 	createdProject, err := s.repo.Create(project)
@@ -44,6 +45,10 @@ func (s *ProjectService) GetAllProjects() ([]models.Project, error) {
 
 	logrus.Infof("[ProjectService] Get All Projects success: %v", projects)
 	return projects, nil
+}
+
+func (s *ProjectService) GetByUserID(userID string) ([]models.Project, error) {
+	return s.repo.GetByUserID(userID)
 }
 
 func (s *ProjectService) GetByIDProject(id uuid.UUID) (*models.Project, error) {

@@ -38,6 +38,7 @@ type Project interface {
 	GetByID(id uuid.UUID) (*models.Project, error)
 	Update(project models.Project) (*models.Project, error)
 	Delete(id uuid.UUID) error
+	GetByUserID(userID string) ([]models.Project, error)
 }
 
 type ProjectBlock interface {

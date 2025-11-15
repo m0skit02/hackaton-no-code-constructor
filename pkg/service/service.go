@@ -24,7 +24,7 @@ type User interface {
 type Tag interface {
 	Create(input tag_context.CreateTagInput) (*models.Tag, error)
 	GetAll() ([]models.Tag, error)
-	GetByID(id string) (*models.Tag, error)
+	GetByIDTag(id string) (*models.Tag, error)
 	Update(id string, input tag_context.UpdateTagInput) (*models.Tag, error)
 	Delete(id string) error
 }
@@ -43,6 +43,7 @@ type Project interface {
 	GetByIDProject(id uuid.UUID) (*models.Project, error)
 	UpdateProject(id uuid.UUID, input project_context.UpdateProjectInput) (*models.Project, error)
 	DeleteProject(id uuid.UUID) error
+	GetByUserID(userID string) ([]models.Project, error)
 }
 
 type ProjectBlock interface {
@@ -72,7 +73,7 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		User:         NewUserService(repos.User),
 		Tag:          NewTagService(repos.Tag),
-		BlockType:    NewBlockTypeService(repos.BlockType),
+		BlockType:    NewBlockTypeService(repos.BlockType, repos.Tag), // <- вот тут
 		Project:      NewProjectService(repos.Project),
 		ProjectBlock: NewProjectBlockService(repos.ProjectBlock),
 		Auth:         NewAuthService(repos.Auth),

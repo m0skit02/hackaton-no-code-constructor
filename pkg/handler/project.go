@@ -59,6 +59,22 @@ func (h *Handler) getByIdProject(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"project": project})
 }
 
+func (h *Handler) getMyProjects(c *gin.Context) {
+	userID := c.GetString("userID")
+	if userID == "" {
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	projects, err := h.services.Project.GetByUserID(userID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, projects)
+}
+
 func (h *Handler) updateProject(c *gin.Context) {
 	id := c.Param("id")
 

@@ -39,7 +39,7 @@ func (h *Handler) getAllTags(c *gin.Context) {
 func (h *Handler) getTagById(c *gin.Context) {
 	id := c.Param("id")
 
-	tag, err := h.services.Tag.GetByID(id)
+	tag, err := h.services.Tag.GetByIDTag(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Tag not found"})

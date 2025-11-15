@@ -36,6 +36,12 @@ func (r *ProjectPostgres) GetAll() ([]models.Project, error) {
 	return projects, nil
 }
 
+func (r *ProjectPostgres) GetByUserID(userID string) ([]models.Project, error) {
+	var projects []models.Project
+	err := r.db.Where("user_id = ?", userID).Find(&projects).Error
+	return projects, err
+}
+
 func (r *ProjectPostgres) GetByID(id uuid.UUID) (*models.Project, error) {
 	logrus.Infof("[ProjectRepo] Getting project %+v", id)
 	var project models.Project

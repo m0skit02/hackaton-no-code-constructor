@@ -25,7 +25,7 @@ func (s *UserService) CreateUser(input user_context.CreateUserInput) (*models.Us
 	existingUser, _ := s.repo.GetByUsername(input.Username)
 	if existingUser != nil {
 		logrus.Warnf("[UserService] User '%s' already exists", input.Username)
-		return nil, errors.New("username already taken")
+		return nil, errors.New("Имя пользователя уже занято")
 	}
 
 	hashedPassword, err := hashPassword(input.Password)

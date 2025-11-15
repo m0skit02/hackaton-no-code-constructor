@@ -36,7 +36,7 @@ func (s *TagService) GetAll() ([]models.Tag, error) {
 	return tags, nil
 }
 
-func (s *TagService) GetByID(id string) (*models.Tag, error) {
+func (s *TagService) GetByIDTag(id string) (*models.Tag, error) {
 	tag, err := s.repo.GetByID(id)
 	if err != nil {
 		return nil, err

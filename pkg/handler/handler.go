@@ -29,7 +29,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	auth := router.Group("/api/auth")
 	{
-		auth.POST("/", h.Login)
+		auth.POST("", h.Login)
 	}
 
 	usersOpen := router.Group("/api/users")
@@ -79,11 +79,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 		projects := api.Group("/projects")
 		{
-			projects.POST("/", h.createProject)      // Создать проект
-			projects.GET("/", h.getAllProject)       // Получить все проекты
-			projects.GET("/:id", h.getByIdProject)   // Получить проект по ID
-			projects.PUT("/:id", h.updateProject)    // Обновить проект по ID
-			projects.DELETE("/:id", h.deleteProject) // Удалить проект по ID
+			projects.POST("/", h.createProject)
+			projects.GET("/", h.getAllProject)   // все проекты
+			projects.GET("/my", h.getMyProjects) // только мои проекты
+			projects.GET("/:id", h.getByIdProject)
+			projects.PUT("/:id", h.updateProject)
+			projects.DELETE("/:id", h.deleteProject)
 		}
 	}
 	return router

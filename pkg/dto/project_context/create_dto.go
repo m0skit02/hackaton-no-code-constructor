@@ -6,7 +6,7 @@ import (
 )
 
 type CreateProjectInput struct {
-	UserID uuid.UUID         `json:"user_id" binding:"required"`
-	Name   string            `json:"name" binding:"required,min=2"`
-	Data   datatypes.JSONMap `json:"data" binding:"omitempty"`
+	UserID uuid.UUID      `json:"user_id" binding:"required"`
+	Name   string         `json:"name" binding:"required,min=2"`
+	Data   datatypes.JSON `json:"data" binding:"omitempty"`
 }
